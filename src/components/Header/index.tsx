@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -8,7 +8,8 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import Button from "@material-ui/core/Button";
-import Logo from '../../assets/phonebook.png';
+import Logo from "../../assets/phonebook.png";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -16,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
     },
     appBar: {
-      backgroundColor: '#333'
+      backgroundColor: "#333",
     },
     menuButton: {
       marginRight: theme.spacing(2),
@@ -29,28 +30,47 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function Header() {
   const classes = useStyles();
-  const [auth, setAuth] = useState(true);
+  const [auth, setAuth] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const history = useHistory();
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMenu = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleLogout = (): void => {
+    localStorage.setItem("auth", "false");
+    localStorage.removeItem("userId");
     setAnchorEl(null);
+    history.push("/");
   };
+
+  useEffect(() => {
+    let authState = localStorage.getItem("auth");
+    setAuth(authState === "true");
+  }, []);
 
   return (
     <div className={classes.root}>
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            <img src={Logo} height="30" alt="Logo" style={{paddingRight: 10}} /> Agenda de Contatos
+            <a href="/">
+              <img
+                src={Logo}
+                height="30"
+                alt="Logo"
+                style={{ paddingRight: 10 }}
+              />{" "}
+              Agenda de Contatos
+            </a>
           </Typography>
-          {auth ? (
+          {auth && (
             <div>
-              <Button color="inherit">Minha agenda</Button>
+              <Button color="inherit" href="/agenda">
+                Minha agenda
+              </Button>
               <IconButton
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
@@ -73,14 +93,11 @@ function Header() {
                   horizontal: "right",
                 }}
                 open={open}
-                onClose={handleClose}
+                onClose={handleLogout}
               >
-                <MenuItem onClick={handleClose}>Minha conta</MenuItem>
-                <MenuItem onClick={handleClose}>Sair</MenuItem>
+                <MenuItem onClick={handleLogout}>Sair</MenuItem>
               </Menu>
             </div>
-          ) : (
-            <Button color="inherit">Login</Button>
           )}
         </Toolbar>
       </AppBar>

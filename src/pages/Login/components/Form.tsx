@@ -1,21 +1,27 @@
 import React from "react";
 import Input from "../../../components/Input";
-import {StyledForm, Button} from './formStyles';
-import api from '../../../services/api';
+import { StyledForm, Button } from "./formStyles";
+import api from "../../../services/api";
+import { useHistory } from "react-router-dom";
 
 function Login() {
+  let history = useHistory();
 
-  function handleSubmit(data: any) {
-    api.post('users/login', data)
-      .then(() => {
-        alert('Login efetuado com sucesso.');
-        localStorage.setItem('auth', 'true');
+  const handleSubmit = (data: any): void => {
+    api
+      .post("users/login", data)
+      .then((response) => {
+        alert("Login efetuado com sucesso.");
+        localStorage.setItem("auth", "true");
+        localStorage.setItem("userId", response.data);
+        history.push("/agenda");
       })
       .catch(() => {
-        alert('Erro ao efetuar login.')
-        localStorage.setItem('auth', 'false');
-      })
-  }
+        alert("Erro ao efetuar login.");
+        localStorage.setItem("auth", "false");
+        localStorage.removeItem("userId");
+      });
+  };
 
   return (
     <StyledForm onSubmit={handleSubmit}>
